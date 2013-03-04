@@ -1,0 +1,110 @@
+--------------------------------------------------------------------------------
+Current TODO and BUGS list:
+--------------------------------------------------------------------------------
+
+==GENERAL==
+
+ BUGS
+ - changing the blocksize to e.g. 65532 does not work in the 
+   server -> "Warning: Could not transmit block #..."
+ TODO
+ - CPU load of server and client apps is much higher than necessary
+ - "blocking": ring buffer blocking, add timeout so it doesn't 
+   block indefinitely and in the worst case lock the disk/filesys...
+ - rework the TCP control channel, add new "command control block"
+   instead of current fwrite(filelength) etc lame bytewise transfer 
+   (to not break compatibility with ancient Tsunami implementations
+   try specific filelength value as "extension" indicator. or then
+   just forget about ancient Tsunami revisions.)
+ - copy command control block things over from FTP client/server
+   control code (get, mget, ls, quote, ...)
+ - the target rate (bit/sec) is of type u_int32_t and limits
+   the maximum rate to 4 Gbit/s, need to change this u_int64_t 
+   and then increase the protocol version to break compatibility
+   => protocol v1.2 branch
+ - the client should detect if the server disconnects i.e. closes
+   its TCP connection (currently the transfer in the client will 
+   just halt "mysteriously" if server is Ctrl-C'ed)
+
+==REALTIME SPECIFIC==
+
+  BUGS
+  TODO
+  - server could send text messages back to client (e.g. "specified start time
+    in the past, starting now", "Disk buffers full. Waiting.... Continuing."),
+    however this breaks the entire Tsunami v1.1 protocol...
+
+--------------------------------------------------------------------------------
+Past TODO and BUGS list:
+--------------------------------------------------------------------------------
+
+==GENERAL==
+
+ BUGS
+ - client segfaults on CLOSE if not connected
+   * fixed: 11 Dec 06 / CVS, better checking
+ - using two tsunami clients concurrently does not work right
+   * fixed: 5 Dec 06 / CVS, by disabling UDP socket reuse
+ - a server side "get abc*" i.e. filename with wildcards will truncate files 
+   on the server leading to loss of all data
+   * fixed: 26 Oct 06 / CVS, fixed by merging Jamil's GET* command into server
+     and client code
+ - client, command line argument parsing, the command "get" doesn't work
+   * fixed: 16 Oct 06 / CVS
+ - Ind.Univ. design fault: REQUEST_RESTART gets stuck in loop if
+   more new (wrt sequence number) packets are still going on the line 
+   than what the retransmit request length limit is (possibly fixed
+   since v1.1 cvsbuild 11, but no guarantees that fix works in 100%
+   of cases)
+   * seems to be fixed/confirmed: 26 May 08 / CVS v1.1 cvsbuild 36
+ TODO
+ - client, server: "dir" command:
+   * added: 23 Aug 07 / CVS, build 27, now a "dir" in the client will
+     retrieve a list of files and their lenghts. The list only contains files 
+     the tsunamid was explicitly told to share from the command line (i.e., often 
+     not all actually downloadable files are in the list)
+ - client allow specifying a different passphrase from command line
+   * added: 24 May 07 / CVS, new 'set passphrase xxx' command
+ - server, IPD not displayed correctly in server stats
+   * changed: 08 Nov 06 / CVS, display real IPD before limiting it between bounds
+
+==REALTIME SPECIFIC==
+
+  BUGS
+  - make local copy via filename containing "/" character only works for first file, 
+    next files are always 0 size
+    * fixed: 16 Oct 06 / CVS
+  - block sizes smaller than 4096 bytes, or not a multiple of 4096,
+    causes a bug in the VSIB driver seek() to skip data! 
+    Using the default 32768 blocksize or 16384, 8192, 4096 is fine.
+    * fixed: 29 Nov 07 / CVS v1.1 cvsbuild 32
+      [the problem was vsibctl.c using read() instead of fread()]
+  TODO
+  - rtserver local backup feature, continue until end and possibly time out after 
+    that if client connection is lost at any time
+    * added  28 Oct 07 / CVS cvsbuild 31, now client heartbeat is monitored (reusing 
+      client error reports coming in at <350ms intervals) in both file
+      and realtime server, user-specified timeout valid after final block sent,
+      display progress on screen even if client not there, don't disconnect
+      if client TCP stream EOF happens
+  - check if retransmit request falls outside of current VSIB buffer window
+    * added: 19 Jun 07 / CVS cvsbuild 18, now a semi-lossless (losswindow) transfer 
+      mode client feature
+  - VSIB mode configurability, i.e. do not hard-code
+    * added: 23 Mar 07 / CVS, now skip and mode passed from command line
+  - rtserver allow user to specify recording length
+    * added: 21 Nov 06 / CVS - byte length can be passed as aux parameter 'flen=...'
+      inside the filename and protocol.c parses the parameter; default is 4min@512Mbps
+  - rtserver calculate correct rate from VSIB mode
+    * changed: 08 Nov 06 / CVS - default 650mbps ipd usleep() for retransmits, new blocks 
+      are limited by VSIB read() speed
+  - rtserver does not compile from CVS, bad Makefile.in/.am
+    * fixed: 17 Oct 06 / CVS
+  - realtime and normal versions have same binary file names
+    * fixed: 17 Oct 06 / CVS  - prefixed realtime binaries with 'rt' (rttsunami(d))  
+
+
+--------------------------------------------------------------------------------
+ For bug fixes and changes earlier to 16 Oct 06 - please see CVS history. 
+ Those updates are not listed here.
+--------------------------------------------------------------------------------

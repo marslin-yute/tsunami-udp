@@ -1,0 +1,43 @@
+VSIB Control Register Mode Bits
+-------------------------------
+alias cmode: STD_LOGIC_VECTOR(3 downto 0) is capture_mode(19 downto 16);
+all32bits:	"0000";	-- MK5 32-bit mode, all the VSI data
+even16bits:	"0001"; -- MK5 16-bit mode or all sign bits from VLBA sampler
+low16bits:	"0010"; -- alt: 2-bit USB from 8 BBCs
+                        -- norm: 2-bit USB+LSB from 4 BBCs
+                        -- also S2 16-bitstream mode
+low8bits:	"0011"; -- alt: 2-bit USB from 4 BBC:s
+                        -- norm: 2-bit USB+LSB from 2 BBCs
+loweven8bits:	"0100"; -- MK5 8-bit mode or 8 sign bits from VLBA sampler
+                        -- alt: 1-bit USB from 8 BBCs
+                        -- norm: 1-bit USB+LSB from 4 BBCs
+autoc4x2bits:	"0101"; -- as 'low8bits'; Autocorrelator 2-bit mode
+autoc4x1bit:	"0110"; -- 4-bit low even; Autocorrelator 1-bit mode
+test2bits:	"0111"; -- 2-bit mode for test
+test1bit:	"1000"; -- 1-bit mode for test
+VLBA_142:	"1001"; -- VLBA 1:4 fanout mode with 2-bit sampling
+VLBA_141:	"1010"; -- VLBA 1:4 fanout mode with 1-bit sampling
+VLBA_122:	"1011"; -- VLBA 1:2 fanout mode with 2-bit sampling
+VLBA_121:	"1100"; -- VLBA 1:2 fanout mode with 1-bit sampling
+VLBA_112:	"1101"; -- VLBA 1:1 fanout mode with 2-bit sampling
+
+VSIC Code Switch Modes
+-------------------------------
+JP2 "TEST/MODE" pin #    7531  -- 1==connect to GND, LED lights up
+-------------------------------
+alt_VLBA_sampler: 	"0000"; -- all 8 USBs in low, LSBs in high bits
+VLBA_sampler: 		"0001"; -- BBC order
+alt_MK4_sampler: 	"0010"; -- not implemented yet
+MK4_sampler: 		"0011"; -- not implemented yet
+(vacant)                "0100";
+(vacant)                "0101";
+decrement_testmode:	"0110"; -- decrementing 32-bit word
+testmode:		"0111"; -- VSI-H test pattern
+MKIV_IOB: 		"1000"; -- Mk4 formatter headstack #1 (50-pin)
+MKIV_IOB_no_parity: 	"1001";
+MKIV_WDB:		"1010"; -- Mk4 formatter headstack #2 (40-pin)
+MKIV_WDB_no_parity:	"1011";
+VLBA_recorder: 	        "1100";
+VLBA_recorder_no_parity:"1101";
+S2_sampler              "1110"; -- 16 low bitstreams
+milkingmachine:	        "1111"; 
